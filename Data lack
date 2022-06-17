@@ -42,13 +42,13 @@ def process_song_data(spark, input_data, output_data):
     df = spark.read.json(song_data)
 
     # extract columns to create songs table
-    songs_table = spark.sql(df)
+    songs_table = df['song_id', 'title', 'artist_id', 'year', 'duration']
     
     # write songs table to parquet files partitioned by year and artist
     songs_table.write.partitionBy('year', 'artist_id').parquet(path = output_data + "/songs/songs.parquet", mode = "overwrite")
 
     # extract columns to create artists table
-    artists_table = spark.sql(artists_table)
+    artists_table = df['artist_id', 'artist_name', 'artist_location', 'artist_latitude', 'artist_longitude']
     
     # write artists table to parquet files
     artists_table.write.parquet(
@@ -115,7 +115,7 @@ This function reads the logs JSON files from S3 and processes them in Spark.Then
 def main():
     spark = create_spark_session()
     input_data = "s3a://udacity-dend/"
-    output_data = "s3://aws-logs-274607334556-us-east-1"
+    output_data = "s3a://aws-logs-274607334556-us-east-1"
     
     process_song_data(spark, input_data, output_data)    
     process_log_data(spark, input_data, output_data)
